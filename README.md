@@ -4,14 +4,14 @@
 
 ## Current Stage
 
-The repository currently contains only `TASK-0` - `Project Init & Contracts`.
+The repository currently contains `TASK-0` and `TASK-1`.
 
-At this stage the project includes:
+Completed so far:
 
 - project skeleton
 - README
 - module split by responsibility
-- stub classes and method signatures for the next tasks
+- implemented `AddressBook` domain with field validation, CRUD helpers, search, and birthday countdown
 
 ## Project Structure
 
@@ -27,7 +27,7 @@ README.md
 ## Module Roles
 
 - `main.py` - entry point and minimal application scaffold
-- `addressbook.py` - contracts for contact fields, records, and address book operations
+- `addressbook.py` - implemented contact fields, records, search, and upcoming birthdays logic
 - `notebook.py` - contracts for notes and notebook operations
 - `storage.py` - contracts for saving and loading data
 - `errors.py` - shared error-handling decorator for future CLI commands
@@ -49,4 +49,4 @@ Current scaffold can be started with:
 python main.py
 ```
 
-At the moment it only confirms that the project skeleton is ready. Full functionality will be added in the next tasks.
+At the moment the branch already contains the AddressBook domain implementation. The full CLI flow and persistence will be added in the next tasks.
