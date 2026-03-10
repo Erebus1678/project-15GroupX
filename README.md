@@ -1,56 +1,52 @@
 # Personal Assistant
 
-`Personal Assistant` is a team CLI application in Python for managing contacts and notes with persistent local storage.
+`Personal Assistant` is a team CLI application in Python for managing contacts and notes.
 
-## Project Goal
+## Current Stage
 
-The project is being developed as a final team assignment for the Python course. The goal is to build a practical command-line assistant that combines contact management, note management, data validation, and persistent storage in one application.
+The repository currently contains only `TASK-0` - `Project Init & Contracts`.
 
-## Planned Functionality
+At this stage the project includes:
 
-- add, edit, delete, and search contacts
-- store contact name, address, phone numbers, email, and birthday
-- validate phone numbers, email addresses, and birthday values
-- show contacts with upcoming birthdays for a specified number of days
-- add, edit, delete, and search notes
-- save data locally so it is preserved between application restarts
-- provide a clear and convenient CLI workflow
+- project skeleton
+- README
+- module split by responsibility
+- stub classes and method signatures for the next tasks
 
-## Optional Extensions
+## Project Structure
 
-The project may later be expanded with:
+```text
+main.py
+addressbook.py
+notebook.py
+storage.py
+errors.py
+README.md
+```
 
-- tags for notes
-- note search and sorting by tags or keywords
-- smart command suggestions for mistyped input
+## Module Roles
 
-## Planned Architecture
+- `main.py` - entry point and minimal application scaffold
+- `addressbook.py` - contracts for contact fields, records, and address book operations
+- `notebook.py` - contracts for notes and notebook operations
+- `storage.py` - contracts for saving and loading data
+- `errors.py` - shared error-handling decorator for future CLI commands
 
-The base project structure is planned around separate modules with clear responsibilities:
+## Roadmap
 
-- `address_book` - contact domain models and business logic
-- `notebook` - notes domain models and operations
-- `storage` - loading and saving application data
-- `cli` - command parsing, handlers, and user interaction flow
-- `tests` - unit and integration checks
+1. `TASK-0` - project skeleton, stubs, README
+2. `TASK-1` - AddressBook module with validation, CRUD, search, birthdays
+3. `TASK-2` - NoteBook module with add/edit/delete/search
+4. `TASK-3` - unified pickle-based storage
+5. `TASK-4` - CLI dispatcher and command loop
+6. `TASK-5` - integration of all modules
 
-This structure will be finalized during `TASK-0`.
+## Run
 
-## Engineering Principles
+Current scaffold can be started with:
 
-- modular design with clear contracts between components
-- object-oriented approach with explicit domain entities
-- validation at the field level
-- resilient error handling for CLI input
-- clean, readable code following `PEP 8`
+```bash
+python main.py
+```
 
-## Team Workflow
-
-The project is intended to be developed through separate task branches and pull requests with code review before merging.
-
-
-## Setup and Usage
-
-Detailed installation and launch instructions will be added after the initial project skeleton is prepared.
-
-
+At the moment it only confirms that the project skeleton is ready. Full functionality will be added in the next tasks.
