@@ -25,7 +25,10 @@ class NoteBook(UserDict):
         Add a new note to the notebook.
 
         The key is note.note_id.
+        Raises ValueError if a note with the given id already exists.
         """
+        if note.note_id in self.data:
+            raise ValueError(f"Note with id {note.note_id} already exists.")
         self.data[note.note_id] = note
 
     def find(self, query: str) -> list[Note]:
@@ -40,21 +43,21 @@ class NoteBook(UserDict):
         """
         Edit note text by its id.
 
-        Raises KeyError if a note with the given id does not exist.
+        Raises ValueError if a note with the given id does not exist.
         """
         note: Optional[Note] = self.data.get(note_id)
         if note is None:
-            raise KeyError(f"Note with id {note_id} not found.")
+            raise ValueError(f"Note with id {note_id} not found.")
         note.edit(new_text)
 
     def delete(self, note_id: str) -> None:
         """
         Delete a note by its id.
 
-        Raises KeyError if a note with the given id does not exist.
+        Raises ValueError if a note with the given id does not exist.
         """
         if note_id not in self.data:
-            raise KeyError(f"Note with id {note_id} not found.")
+            raise ValueError(f"Note with id {note_id} not found.")
         del self.data[note_id]
 
     def list_notes(self) -> list[Note]:
@@ -109,7 +112,7 @@ Classes
        edit(new_text: str) -> None
            Update note text.
        __str__() -> str
-           Return string representation: "<id>: <text>".
+           Return string representation: "<note_id>: <text>".
 
 2) NoteBook (inherits from UserDict)
    - Purpose: collection of notes stored separately from contacts.
@@ -120,6 +123,7 @@ Classes
    - add_note(note: Note) -> None
        Add a new note to the notebook.
        The key is note.note_id.
+       Raises ValueError if a note with the given id already exists.
 
    - find(query: str) -> list[Note]
        Return a list of notes whose text contains the given query
@@ -127,11 +131,11 @@ Classes
 
    - edit(note_id: str, new_text: str) -> None
        Edit note text by its id.
-       Raises KeyError if a note with the given id does not exist.
+       Raises ValueError if a note with the given id does not exist.
 
    - delete(note_id: str) -> None
        Delete a note by its id.
-       Raises KeyError if a note with the given id does not exist.
+       Raises ValueError if a note with the given id does not exist.
 
    - list_notes() -> list[Note]
        Return a list of all notes.
