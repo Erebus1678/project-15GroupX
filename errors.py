@@ -12,12 +12,8 @@ def input_error(func):
         except KeyError as error:
             if error.args and error.args[0]:
                 return str(error.args[0])
-            return "Record wasn't found."
-        except AttributeError:
-            return "Record wasn't found."
+            return "Contact not found."
         except IndexError:
             return "Not enough arguments. Please check the command format."
-        except Exception as error:
-            return f"Unexpected error: {error}"
 
     return wrapper

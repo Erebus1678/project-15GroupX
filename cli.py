@@ -49,7 +49,10 @@ def change_contact(args: list[str], book: AddressBook) -> str:
     if len(args) < 3:
         raise ValueError("Usage: change <name> <old_phone> <new_phone>")
     name, old_phone, new_phone = args[:3]
-    book.find(name).edit_phone(old_phone, new_phone)
+    record = book.find(name)
+    if record is None:
+        raise KeyError("Contact not found.")
+    record.edit_phone(old_phone, new_phone)
     return "Contact updated."
 
 @input_error
@@ -65,7 +68,10 @@ def set_email(args: list[str], book: AddressBook) -> str:
     if len(args) < 2:
         raise ValueError("Usage: set-email <name> <email>")
     name, email = args[:2]
-    book.find(name).set_email(email)
+    record = book.find(name)
+    if record is None:
+        raise KeyError("Contact not found.")
+    record.set_email(email)
     return "Email added."
 
 @input_error
@@ -73,7 +79,10 @@ def set_address(args: list[str], book: AddressBook) -> str:
     if len(args) < 2:
         raise ValueError("Usage: set-address <name> <address>")
     name, *address_parts = args
-    book.find(name).set_address(" ".join(address_parts))
+    record = book.find(name)
+    if record is None:
+        raise KeyError("Contact not found.")
+    record.set_address(" ".join(address_parts))
     return "Address added."
 
 @input_error
@@ -81,7 +90,10 @@ def set_birthday(args: list[str], book: AddressBook) -> str:
     if len(args) < 2:
         raise ValueError("Usage: set-birthday <name> <DD.MM.YYYY>")
     name, birthday = args[:2]
-    book.find(name).add_birthday(birthday)
+    record = book.find(name)
+    if record is None:
+        raise KeyError("Contact not found.")
+    record.add_birthday(birthday)
     return "Birthday added."
 
 @input_error
