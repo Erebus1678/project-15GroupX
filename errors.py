@@ -1,6 +1,5 @@
 from functools import wraps
 
-
 def input_error(func):
     """Handle common CLI exceptions without crashing the program."""
 
@@ -11,7 +10,11 @@ def input_error(func):
         except ValueError as error:
             return str(error)
         except KeyError as error:
-            return str(error)
+            if error.args and error.args[0]:
+                return str(error.args[0])
+            return "Record wasn't found."
+        except AttributeError:
+            return "Record wasn't found."
         except IndexError:
             return "Not enough arguments. Please check the command format."
         except Exception as error:
