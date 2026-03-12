@@ -26,5 +26,5 @@ def load_notebook(filename: str = "notebook.pkl") -> NoteBook:
         with open(filename, "rb") as f:
             return pickle.load(f)
     except FileNotFoundError:
-        return AddressBook()
+        return NoteBook()
 
