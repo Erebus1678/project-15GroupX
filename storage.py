@@ -1,18 +1,30 @@
 from addressbook import AddressBook
 from notebook import NoteBook
+import pickle
 
 
 def save_addressbook(book: AddressBook, filename: str = "addressbook.pkl") -> None:
-    raise NotImplementedError("AddressBook persistence will be implemented in TASK-3.")
+    with open(filename, "wb") as f:
+        pickle.dump(book, f)
 
 
 def load_addressbook(filename: str = "addressbook.pkl") -> AddressBook:
-    raise NotImplementedError("AddressBook persistence will be implemented in TASK-3.")
+    try:
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return AddressBook()
 
 
 def save_notebook(book: NoteBook, filename: str = "notebook.pkl") -> None:
-    raise NotImplementedError("NoteBook persistence will be implemented in TASK-3.")
+    with open(filename, "wb") as f:
+        pickle.dump(book, f)
 
 
 def load_notebook(filename: str = "notebook.pkl") -> NoteBook:
-    raise NotImplementedError("NoteBook persistence will be implemented in TASK-3.")
+    try:
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return AddressBook()
+
