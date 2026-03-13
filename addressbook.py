@@ -205,13 +205,10 @@ class AddressBook(UserDict):
             try:
                 birthday_this_year = birthday_date.replace(year=today.year)
             except ValueError:
-                birthday_this_year = date(today.year, 2, 28)
+                birthday_this_year = date(today.year, today.month, today.day)
 
             if birthday_this_year < today:
-                try:
-                    birthday_this_year = birthday_date.replace(year=today.year + 1)
-                except ValueError:
-                    birthday_this_year = date(today.year + 1, 2, 28)
+                birthday_this_year = birthday_date.replace(year=today.year + 1)
 
             if today <= birthday_this_year <= end_date:
                 congratulation_date = birthday_this_year
