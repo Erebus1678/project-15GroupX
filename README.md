@@ -1,22 +1,25 @@
 # Personal Assistant
 
-`Personal Assistant` is a team CLI application in Python for managing contacts and notes.
+`Personal Assistant` is a command-line Python application for managing contacts and notes with persistent local storage.
 
-## Current Stage
+## Features
 
-The repository currently contains `TASK-0` and `TASK-1`.
+- add, edit, search, and delete contacts
+- store contact phones, email, address, and birthday
+- validate phone numbers and email addresses during input
+- show upcoming birthdays for the next N days
+- add, edit, search, and delete notes
+- keep data between runs using pickle storage
 
-Completed so far:
+## Requirements
 
-- project skeleton
-- README
-- module split by responsibility
-- implemented `AddressBook` domain with field validation, CRUD helpers, search, and birthday countdown
+- Python 3.10 or newer
 
 ## Project Structure
 
 ```text
 main.py
+cli.py
 addressbook.py
 notebook.py
 storage.py
@@ -26,27 +29,67 @@ README.md
 
 ## Module Roles
 
-- `main.py` - entry point and minimal application scaffold
-- `addressbook.py` - implemented contact fields, records, search, and upcoming birthdays logic
-- `notebook.py` - contracts for notes and notebook operations
-- `storage.py` - contracts for saving and loading data
-- `errors.py` - shared error-handling decorator for future CLI commands
-
-## Roadmap
-
-1. `TASK-0` - project skeleton, stubs, README
-2. `TASK-1` - AddressBook module with validation, CRUD, search, birthdays
-3. `TASK-2` - NoteBook module with add/edit/delete/search
-4. `TASK-3` - unified pickle-based storage
-5. `TASK-4` - CLI dispatcher and command loop
-6. `TASK-5` - integration of all modules
+- `main.py` - application entry point and save/load lifecycle
+- `cli.py` - command loop, parsing, and user interaction
+- `addressbook.py` - contact entities, validation, search, and birthdays
+- `notebook.py` - note entities and notebook operations
+- `storage.py` - pickle-based persistence helpers
+- `errors.py` - shared CLI error handling decorator
 
 ## Run
-
-Current scaffold can be started with:
 
 ```bash
 python main.py
 ```
 
-At the moment the branch already contains the AddressBook domain implementation. The full CLI flow and persistence will be added in the next tasks.
+After launch, the assistant prints the available commands and keeps running until you enter `close` or `exit`.
+
+## Available Commands
+
+### Contacts
+
+- `add <name> <phone>`
+- `change <name> <old_phone> <new_phone>`
+- `delete <name>`
+- `set-email <name> <email>`
+- `set-address <name> <address>`
+- `set-birthday <name> <DD.MM.YYYY>`
+- `birthdays <days>`
+- `find <query>`
+- `all-contacts`
+
+### Notes
+
+- `add-note <text>`
+- `edit-note <id> <text>`
+- `delete-note <id>`
+- `find-note <query>`
+- `all-notes`
+
+### General
+
+- `help`
+- `close`
+- `exit`
+
+## Storage
+
+By default, the application stores data in the user home directory:
+
+- `~/.personal_assistant/addressbook.pkl`
+- `~/.personal_assistant/notebook.pkl`
+
+This allows contacts and notes to remain available after restarting the program.
+
+## Example Session
+
+```text
+add John 1234567890
+set-email John john@example.com
+set-address John 12 Green Street
+set-birthday John 15.08.1995
+add-note Buy milk after work
+find John
+all-notes
+exit
+```
