@@ -224,5 +224,5 @@ def main(book: AddressBook, notebook: NoteBook) -> None:
                 case _:
                     print("Invalid command.")
 
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         print("\nGood bye!")
