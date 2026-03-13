@@ -171,6 +171,13 @@ class Record:
 class AddressBook(UserDict):
     """Collection of contact records."""
 
+    @staticmethod
+    def _birthday_for_year(birthday: date, year: int) -> date:
+        try:
+            return birthday.replace(year=year)
+        except ValueError:
+            return date(year, 3, 1)
+
     def add_record(self, record: Record) -> None:
         if record.name.value in self.data:
             raise ValueError("Contact already exists.")
@@ -201,14 +208,10 @@ class AddressBook(UserDict):
                 continue
 
             birthday_date = record.birthday.value
-
-            try:
-                birthday_this_year = birthday_date.replace(year=today.year)
-            except ValueError:
-                birthday_this_year = date(today.year, today.month, today.day)
+            birthday_this_year = self._birthday_for_year(birthday_date, today.year)
 
             if birthday_this_year < today:
-                birthday_this_year = birthday_date.replace(year=today.year + 1)
+                birthday_this_year = self._birthday_for_year(birthday_date, today.year + 1)
 
             if today <= birthday_this_year <= end_date:
                 congratulation_date = birthday_this_year
