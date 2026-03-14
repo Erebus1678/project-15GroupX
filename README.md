@@ -42,15 +42,29 @@ macOS / Linux:
 source .venv/bin/activate
 ```
 
+Install the project as a package from the repository root:
+
+```bash
+python -m pip install .
+```
+
+For local development, you can use editable mode:
+
+```bash
+python -m pip install -e .
+```
+
 The project uses only the Python standard library, so no extra packages are required.
 
 ## Project Structure
 
 ```text
+pyproject.toml
 main.py
 cli.py
 addressbook.py
 notebook.py
+services.py
 storage.py
 errors.py
 README.md
@@ -62,10 +76,19 @@ README.md
 - `cli.py` - command loop, parsing, and user interaction
 - `addressbook.py` - contact entities, validation, search, and birthdays
 - `notebook.py` - note entities and notebook operations
+- `services.py` - application-level contact and note operations used by CLI
 - `storage.py` - pickle-based persistence helpers
-- `errors.py` - shared CLI error handling decorator
+- `errors.py` - shared CLI error handling decorator and custom application errors
 
 ## Run
+
+After installation, launch the assistant from any directory with:
+
+```bash
+personal-assistant
+```
+
+You can also run it directly from the project root during development:
 
 ```bash
 python main.py
@@ -79,6 +102,7 @@ Minimal example:
 
 ```text
 add John 1234567890
+add-phone John 0987654321
 set-email John john@example.com
 set-address John 12 Green Street
 set-birthday John 15.08.1995
@@ -93,6 +117,7 @@ exit
 ### Contacts
 
 - `add <name> <phone>` - create a new contact with the first phone number
+- `add-phone <name> <phone>` - add another phone number to an existing contact
 - `change <name> <old_phone> <new_phone>` - replace an existing phone number
 - `delete <name>` - remove a contact from the address book
 - `set-email <name> <email>` - assign or update email
@@ -149,6 +174,7 @@ The application saves data:
 
 ```text
 add John 1234567890
+add-phone John 0987654321
 set-email John john@example.com
 set-address John 12 Green Street
 set-birthday John 15.08.1995
