@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "personal-assistant"
+version = "0.1.0"
+description = "Command-line personal assistant for managing contacts and notes."
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.scripts]
+personal-assistant = "main:run"
+
+[tool.setuptools]
+py-modules = ["addressbook", "cli", "errors", "main", "notebook", "services", "storage"]

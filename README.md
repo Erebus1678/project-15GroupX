@@ -15,13 +15,29 @@
 
 - Python 3.10 or newer
 
+## Install
+
+Install the project as a package from the repository root:
+
+```bash
+python -m pip install .
+```
+
+For local development, you can use editable mode:
+
+```bash
+python -m pip install -e .
+```
+
 ## Project Structure
 
 ```text
+pyproject.toml
 main.py
 cli.py
 addressbook.py
 notebook.py
+services.py
 storage.py
 errors.py
 README.md
@@ -33,10 +49,19 @@ README.md
 - `cli.py` - command loop, parsing, and user interaction
 - `addressbook.py` - contact entities, validation, search, and birthdays
 - `notebook.py` - note entities and notebook operations
+- `services.py` - application-level contact and note operations used by CLI
 - `storage.py` - pickle-based persistence helpers
 - `errors.py` - shared CLI error handling decorator
 
 ## Run
+
+After installation, launch the assistant from any directory with:
+
+```bash
+personal-assistant
+```
+
+You can also run it directly from the project root during development:
 
 ```bash
 python main.py
@@ -49,6 +74,7 @@ After launch, the assistant prints the available commands and keeps running unti
 ### Contacts
 
 - `add <name> <phone>`
+- `add-phone <name> <phone>`
 - `change <name> <old_phone> <new_phone>`
 - `delete <name>`
 - `set-email <name> <email>`
@@ -85,6 +111,7 @@ This allows contacts and notes to remain available after restarting the program.
 
 ```text
 add John 1234567890
+add-phone John 0987654321
 set-email John john@example.com
 set-address John 12 Green Street
 set-birthday John 15.08.1995

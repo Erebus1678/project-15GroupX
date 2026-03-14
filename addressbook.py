@@ -3,6 +3,14 @@ from collections import UserDict
 from datetime import date, datetime, timedelta
 from typing import Optional
 
+from errors import (
+    ContactNotFoundError,
+    DuplicateContactError,
+    DuplicatePhoneError,
+    PhoneNotFoundError,
+    ValidationError,
+)
+
 
 class Field:
     """Base class for contact fields."""
@@ -29,7 +37,7 @@ class Name(Field):
     def value(self, value: str) -> None:
         cleaned_value = value.strip()
         if not cleaned_value:
-            raise ValueError("Name cannot be empty.")
+            raise ValidationError("Name cannot be empty.")
         self._value = cleaned_value
 
 
@@ -40,7 +48,7 @@ class Address(Field):
     def value(self, value: str) -> None:
         cleaned_value = value.strip()
         if not cleaned_value:
-            raise ValueError("Address cannot be empty.")
+            raise ValidationError("Address cannot be empty.")
         self._value = cleaned_value
 
 
@@ -51,7 +59,7 @@ class Phone(Field):
     def value(self, value: str) -> None:
         cleaned_value = value.strip()
         if not (cleaned_value.isdigit() and len(cleaned_value) == 10):
-            raise ValueError("Invalid phone number. Phone must contain 10 digits.")
+            raise ValidationError("Invalid phone number. Phone must contain 10 digits.")
         self._value = cleaned_value
 
 
@@ -64,7 +72,7 @@ class Email(Field):
     def value(self, value: str) -> None:
         cleaned_value = value.strip()
         if not self.EMAIL_PATTERN.fullmatch(cleaned_value):
-            raise ValueError("Invalid email format.")
+            raise ValidationError("Invalid email format.")
         self._value = cleaned_value
 
 
@@ -84,7 +92,7 @@ class Birthday(Field):
         try:
             parsed_date = datetime.strptime(cleaned_value, "%d.%m.%Y").date()
         except ValueError as error:
-            raise ValueError("Invalid date format. Use DD.MM.YYYY") from error
+            raise ValidationError("Invalid date format. Use DD.MM.YYYY") from error
         self._value = parsed_date
 
     def __str__(self) -> str:
@@ -110,23 +118,23 @@ class Record:
     def add_phone(self, phone: str) -> None:
         new_phone = Phone(phone)
         if self.find_phone(new_phone.value) is not None:
-            raise ValueError("Phone number already exists.")
+            raise DuplicatePhoneError("Phone number already exists.")
         self.phones.append(new_phone)
 
     def remove_phone(self, phone: str) -> None:
         existing_phone = self.find_phone(phone)
         if existing_phone is None:
-            raise ValueError("Phone number not found.")
+            raise PhoneNotFoundError("Phone number not found.")
         self.phones.remove(existing_phone)
 
     def edit_phone(self, old_phone: str, new_phone: str) -> None:
         current_phone = self.find_phone(old_phone)
         if current_phone is None:
-            raise ValueError("Old phone number not found.")
+            raise PhoneNotFoundError("Old phone number not found.")
 
         replacement_phone = Phone(new_phone)
         if replacement_phone.value != current_phone.value and self.find_phone(replacement_phone.value) is not None:
-            raise ValueError("Phone number already exists.")
+            raise DuplicatePhoneError("Phone number already exists.")
 
         current_phone.value = replacement_phone.value
 
@@ -171,16 +179,23 @@ class Record:
 class AddressBook(UserDict):
     """Collection of contact records."""
 
+    LEAP_DAY_FALLBACK_MONTH = 3
+    LEAP_DAY_FALLBACK_DAY = 1
+
     @staticmethod
     def _birthday_for_year(birthday: date, year: int) -> date:
         try:
             return birthday.replace(year=year)
         except ValueError:
-            return date(year, 3, 1)
+            return date(
+                year,
+                AddressBook.LEAP_DAY_FALLBACK_MONTH,
+                AddressBook.LEAP_DAY_FALLBACK_DAY,
+            )
 
     def add_record(self, record: Record) -> None:
         if record.name.value in self.data:
-            raise ValueError("Contact already exists.")
+            raise DuplicateContactError("Contact already exists.")
         self.data[record.name.value] = record
 
     def find(self, name: str) -> Optional[Record]:
@@ -189,7 +204,7 @@ class AddressBook(UserDict):
     def delete(self, name: str) -> None:
         cleaned_name = name.strip()
         if cleaned_name not in self.data:
-            raise KeyError("Contact not found.")
+            raise ContactNotFoundError("Contact not found.")
         del self.data[cleaned_name]
 
     def search(self, query: str) -> list[Record]:
@@ -197,7 +212,7 @@ class AddressBook(UserDict):
 
     def get_upcoming_birthdays(self, days: int = 7) -> list[dict[str, str]]:
         if days < 0:
-            raise ValueError("Days must be zero or greater.")
+            raise ValidationError("Days must be zero or greater.")
 
         today = date.today()
         end_date = today + timedelta(days=days)
