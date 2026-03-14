@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from dataclasses import dataclass
+
 from addressbook import AddressBook
 from errors import ValidationError, input_error
 from notebook import NoteBook
@@ -37,12 +40,42 @@ Commands:
     close / exit                      - Save and exit
 """.strip()
 
+SAVE_ON_SUCCESS = {
+    "Contact added.",
+    "Phone added.",
+    "Contact updated.",
+    "Contact deleted.",
+    "Email added.",
+    "Address added.",
+    "Birthday added.",
+    "Note updated.",
+    "Note deleted.",
+}
+
+
+@dataclass(frozen=True)
+class CommandSpec:
+    handler: Callable[[list[str]], str]
+    mutates: bool = False
+
+
 def parse_input(user_input: str) -> tuple[str, list[str]]:
     parts = user_input.strip().split()
     if not parts:
         return "", []
     command, *args = parts
     return command.lower(), args
+
+
+def save_after_success(message: str, save_state: Callable[[], None]) -> str:
+    if message in SAVE_ON_SUCCESS or message.startswith("Note added with id: "):
+        save_state()
+    return message
+
+
+def show_help(_: list[str]) -> str:
+    return HELP_TEXT
+
 
 @input_error
 def add_contact(args: list[str], book: AddressBook) -> str:
@@ -52,6 +85,7 @@ def add_contact(args: list[str], book: AddressBook) -> str:
     add_contact_service(book, name, phone)
     return "Contact added."
 
+
 @input_error
 def add_phone(args: list[str], book: AddressBook) -> str:
     if len(args) < 2:
@@ -59,6 +93,7 @@ def add_phone(args: list[str], book: AddressBook) -> str:
     name, phone = args[:2]
     add_phone_service(book, name, phone)
     return "Phone added."
+
 
 @input_error
 def change_contact(args: list[str], book: AddressBook) -> str:
@@ -68,6 +103,7 @@ def change_contact(args: list[str], book: AddressBook) -> str:
     change_phone(book, name, old_phone, new_phone)
     return "Contact updated."
 
+
 @input_error
 def delete_contact(args: list[str], book: AddressBook) -> str:
     if len(args) < 1:
@@ -75,6 +111,7 @@ def delete_contact(args: list[str], book: AddressBook) -> str:
     name = args[0]
     book.delete(name)
     return "Contact deleted."
+
 
 @input_error
 def set_email(args: list[str], book: AddressBook) -> str:
@@ -84,6 +121,7 @@ def set_email(args: list[str], book: AddressBook) -> str:
     set_email_service(book, name, email)
     return "Email added."
 
+
 @input_error
 def set_address(args: list[str], book: AddressBook) -> str:
     if len(args) < 2:
@@ -92,6 +130,7 @@ def set_address(args: list[str], book: AddressBook) -> str:
     set_address_service(book, name, " ".join(address_parts))
     return "Address added."
 
+
 @input_error
 def set_birthday(args: list[str], book: AddressBook) -> str:
     if len(args) < 2:
@@ -99,6 +138,7 @@ def set_birthday(args: list[str], book: AddressBook) -> str:
     name, birthday = args[:2]
     set_birthday_service(book, name, birthday)
     return "Birthday added."
+
 
 @input_error
 def upcoming_birthdays(args: list[str], book: AddressBook) -> str:
@@ -110,6 +150,7 @@ def upcoming_birthdays(args: list[str], book: AddressBook) -> str:
     if not records:
         return f"No birthdays in the next {args[0]} days."
     return "\n".join(f"{r['name']}: {r['congratulation_date']}" for r in records)
+
 
 @input_error
 def find_contacts(args: list[str], book: AddressBook) -> str:
@@ -127,12 +168,14 @@ def all_contacts(book: AddressBook) -> str:
         return "No contacts saved."
     return "\n".join(str(record) for record in book.data.values())
 
+
 @input_error
 def add_note(args: list[str], notebook: NoteBook) -> str:
     if len(args) < 1:
         raise ValidationError("Usage: add-note <text>")
     note = create_note(notebook, " ".join(args))
     return f"Note added with id: {note.note_id}."
+
 
 @input_error
 def edit_note(args: list[str], notebook: NoteBook) -> str:
@@ -141,12 +184,14 @@ def edit_note(args: list[str], notebook: NoteBook) -> str:
     notebook.edit(args[0], " ".join(args[1:]))
     return "Note updated."
 
+
 @input_error
 def delete_note(args: list[str], notebook: NoteBook) -> str:
     if not args or not args[0].isdigit():
         raise ValidationError("Usage: delete-note <id>")
     notebook.delete(args[0])
     return "Note deleted."
+
 
 @input_error
 def find_note(args: list[str], notebook: NoteBook) -> str:
@@ -165,7 +210,28 @@ def all_notes(notebook: NoteBook) -> str:
         return "No notes saved."
     return "\n".join(str(note) for note in notes)
 
-def main(book: AddressBook, notebook: NoteBook) -> None:
+
+def main(book: AddressBook, notebook: NoteBook, save_state: Callable[[], None]) -> None:
+    commands = {
+        "help": CommandSpec(show_help),
+        "add": CommandSpec(lambda args: add_contact(args, book), mutates=True),
+        "add-phone": CommandSpec(lambda args: add_phone(args, book), mutates=True),
+        "change": CommandSpec(lambda args: change_contact(args, book), mutates=True),
+        "delete": CommandSpec(lambda args: delete_contact(args, book), mutates=True),
+        "set-email": CommandSpec(lambda args: set_email(args, book), mutates=True),
+        "set-address": CommandSpec(lambda args: set_address(args, book), mutates=True),
+        "set-birthday": CommandSpec(lambda args: set_birthday(args, book), mutates=True),
+        "birthdays": CommandSpec(lambda args: upcoming_birthdays(args, book)),
+        "find": CommandSpec(lambda args: find_contacts(args, book)),
+        "all-contacts": CommandSpec(lambda _: all_contacts(book)),
+        "add-note": CommandSpec(lambda args: add_note(args, notebook), mutates=True),
+        "edit-note": CommandSpec(lambda args: edit_note(args, notebook), mutates=True),
+        "delete-note": CommandSpec(lambda args: delete_note(args, notebook), mutates=True),
+        "find-note": CommandSpec(lambda args: find_note(args, notebook)),
+        "all-notes": CommandSpec(lambda _: all_notes(notebook)),
+    }
+    exit_commands = {"close", "exit"}
+
     print("Welcome to the assistant bot!")
     print(HELP_TEXT)
 
@@ -174,46 +240,20 @@ def main(book: AddressBook, notebook: NoteBook) -> None:
             user_input = input("\nEnter a command: ").strip()
             command, args = parse_input(user_input)
 
-            match command:
-                case "close" | "exit":
-                    print("Good bye!")
-                    break
-                case "help":
-                    print(HELP_TEXT)
-                case "add":
-                    print(add_contact(args, book))
-                case "add-phone":
-                    print(add_phone(args, book))
-                case "change":
-                    print(change_contact(args, book))
-                case "delete":
-                    print(delete_contact(args, book))
-                case "set-email":
-                    print(set_email(args, book))
-                case "set-address":
-                    print(set_address(args, book))
-                case "set-birthday":
-                    print(set_birthday(args, book))
-                case "birthdays":
-                    print(upcoming_birthdays(args, book))
-                case "find":
-                    print(find_contacts(args, book))
-                case "all-contacts":
-                    print(all_contacts(book))
-                case "add-note":
-                    print(add_note(args, notebook))
-                case "edit-note":
-                    print(edit_note(args, notebook))
-                case "delete-note":
-                    print(delete_note(args, notebook))
-                case "find-note":
-                    print(find_note(args, notebook))
-                case "all-notes":
-                    print(all_notes(notebook))
-                case "":
-                    continue
-                case _:
-                    print("Invalid command.")
+            if command in exit_commands:
+                print("Good bye!")
+                break
+            if command == "":
+                continue
+            command_spec = commands.get(command)
+            if command_spec is None:
+                print("Invalid command.")
+                continue
+
+            response = command_spec.handler(args)
+            if command_spec.mutates:
+                response = save_after_success(response, save_state)
+            print(response)
 
     except (KeyboardInterrupt, EOFError):
         print("\nGood bye!")

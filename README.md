@@ -15,7 +15,32 @@
 
 - Python 3.10 or newer
 
-## Install
+## Installation
+
+Clone the repository and move into the project directory:
+
+```bash
+git clone https://github.com/Erebus1678/project-15GroupX.git
+cd project-15GroupX
+```
+
+Optionally create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+macOS / Linux:
+
+```bash
+source .venv/bin/activate
+```
 
 Install the project as a package from the repository root:
 
@@ -28,6 +53,8 @@ For local development, you can use editable mode:
 ```bash
 python -m pip install -e .
 ```
+
+The project uses only the Python standard library, so no extra packages are required.
 
 ## Project Structure
 
@@ -51,7 +78,7 @@ README.md
 - `notebook.py` - note entities and notebook operations
 - `services.py` - application-level contact and note operations used by CLI
 - `storage.py` - pickle-based persistence helpers
-- `errors.py` - shared CLI error handling decorator
+- `errors.py` - shared CLI error handling decorator and custom application errors
 
 ## Run
 
@@ -69,34 +96,50 @@ python main.py
 
 After launch, the assistant prints the available commands and keeps running until you enter `close` or `exit`.
 
+## Quick Start
+
+Minimal example:
+
+```text
+add John 1234567890
+add-phone John 0987654321
+set-email John john@example.com
+set-address John 12 Green Street
+set-birthday John 15.08.1995
+add-note Buy milk after work
+all-contacts
+all-notes
+exit
+```
+
 ## Available Commands
 
 ### Contacts
 
-- `add <name> <phone>`
-- `add-phone <name> <phone>`
-- `change <name> <old_phone> <new_phone>`
-- `delete <name>`
-- `set-email <name> <email>`
-- `set-address <name> <address>`
-- `set-birthday <name> <DD.MM.YYYY>`
-- `birthdays <days>`
-- `find <query>`
-- `all-contacts`
+- `add <name> <phone>` - create a new contact with the first phone number
+- `add-phone <name> <phone>` - add another phone number to an existing contact
+- `change <name> <old_phone> <new_phone>` - replace an existing phone number
+- `delete <name>` - remove a contact from the address book
+- `set-email <name> <email>` - assign or update email
+- `set-address <name> <address>` - assign or update address
+- `set-birthday <name> <DD.MM.YYYY>` - save birthday in day-month-year format
+- `birthdays <days>` - show contacts with birthdays in the next N days
+- `find <query>` - search by name, phone, email, address, or birthday text
+- `all-contacts` - print all saved contacts
 
 ### Notes
 
-- `add-note <text>`
-- `edit-note <id> <text>`
-- `delete-note <id>`
-- `find-note <query>`
-- `all-notes`
+- `add-note <text>` - create a note with an auto-generated numeric id
+- `edit-note <id> <text>` - update note content
+- `delete-note <id>` - remove a note
+- `find-note <query>` - search note text
+- `all-notes` - print all saved notes
 
 ### General
 
-- `help`
-- `close`
-- `exit`
+- `help` - print the command list
+- `close` - save data and close the program
+- `exit` - save data and close the program
 
 ## Storage
 
@@ -106,6 +149,26 @@ By default, the application stores data in the user home directory:
 - `~/.personal_assistant/notebook.pkl`
 
 This allows contacts and notes to remain available after restarting the program.
+
+The application saves data:
+
+- after successful changes to contacts and notes;
+- when the program exits normally;
+- when the session is interrupted with `Ctrl+C` or `Ctrl+D`.
+
+## Validation and Error Handling
+
+- Phone numbers must contain exactly 10 digits.
+- Email addresses are validated before saving.
+- Birthdays must use the `DD.MM.YYYY` format.
+- Invalid commands or invalid data do not crash the application; the CLI shows an error message and continues running.
+
+## Notes on Behavior
+
+- The help menu is printed once on startup and can be shown again with `help`.
+- Birthday output is calculated relative to the current date.
+- If a birthday falls on a weekend, the congratulation date is moved to the next Monday.
+- Notes receive incremental numeric ids starting from `1`.
 
 ## Example Session
 
